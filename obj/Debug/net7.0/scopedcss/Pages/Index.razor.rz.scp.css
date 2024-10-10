@@ -1,0 +1,15 @@
+.box-list[b-pyat5qxqvc] {
+  display: flex;
+  flex-direction: column;
+}
+
+.box[b-pyat5qxqvc] {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 5px;
+  cursor: move;
+}
+
+.content-menu[b-pyat5qxqvc] {
+  margin-top: 20px;
+}

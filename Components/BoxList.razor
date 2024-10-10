@@ -1,0 +1,210 @@
+@using DragAndDropProject.Models
+
+<h3>Skapa nya boxar:</h3>
+<button @onclick="ToggleButtonsVisibility">
+    @(showButtons ? "Dölj Knappar" : "Visa Knappar")
+</button>
+
+@if (showButtons)
+{
+    <button @onclick="AddTextBox">Lägg till Text Box</button>
+    <button @onclick="AddImageBox">Lägg till Image Box</button>
+    <button @onclick="AddContainer">Lägg till Container</button>
+}
+
+<ul class="box-list">
+    @foreach (var box in boxes)
+    {
+        @RenderContentItem(box)
+    }
+</ul>
+
+@code {
+    [Parameter]
+    public EventCallback<BoxBase> OnBoxSelected { get; set; }
+
+    private List<BoxBase> boxes = new List<BoxBase>();
+    private List<BoxContainer> containers = new List<BoxContainer>(); // Lista för containrar
+    private int nextId = 5; // För att ge unika Id till nya boxar
+    private bool showButtons = true; // För att styra visningen av knapparna
+
+    protected override void OnInitialized()
+    {
+        // Lägg till några boxar som standard
+        boxes.Add(new TextBox { Id = 1, Text = "Text Box 1" });
+        boxes.Add(new ImageBox { Id = 2, ImageUrl = "https://via.placeholder.com/100" });
+        boxes.Add(new TextBox { Id = 3, Text = "Text Box 2" });
+        boxes.Add(new ImageBox { Id = 4, ImageUrl = "https://via.placeholder.com/100" });
+
+        // Lägg till exempelcontainrar
+        containers.Add(new BoxContainer { Id = 6, Title = "Container 1", InnerBoxes = new List<BoxBase>() });
+        containers.Add(new BoxContainer { Id = 7, Title = "Container 2", InnerBoxes = new List<BoxBase>() });
+    }
+
+    private void ToggleButtonsVisibility()
+    {
+        showButtons = !showButtons; // Toggla visningsstatusen
+    }
+
+    private void AddTextBox()
+    {
+        boxes.Add(new TextBox { Id = nextId++, Text = $"Text Box {nextId}" });
+    }
+
+    private void AddImageBox()
+    {
+        boxes.Add(new ImageBox { Id = nextId++, ImageUrl = "https://via.placeholder.com/100" });
+    }
+
+    private void AddContainer()
+    {
+        var newContainer = new BoxContainer { Id = nextId++, Title = $"Container {nextId}", InnerBoxes = new List<BoxBase>() };
+        boxes.Add(newContainer);
+        containers.Add(newContainer); // Lägg till den nya containern i containrar-listan
+    }
+
+    private RenderFragment RenderContentItem(BoxBase box) => @<li>
+        <h3>@box.GetType().Name - @((box is BoxContainer c) ? c.Title : string.Empty)</h3>
+        <div>@((MarkupString)box.GetContent())</div> <!-- Rendera innehållet som MarkupString -->
+
+        @if (box is BoxContainer parentContainer)
+        {
+            <ul>
+                @foreach (var innerBox in parentContainer.InnerBoxes)
+                {
+                    @RenderContentItem(innerBox)
+                }
+            </ul>
+            <button @onclick="() => AddInnerTextBox(parentContainer)">Lägg till Text Box i Container</button>
+            <button @onclick="() => AddInnerImageBox(parentContainer)">Lägg till Image Box i Container</button>
+        }
+        else if (box is TextBox || box is ImageBox) // Endast boxar som inte är containrar
+        {
+            <select @onchange="(e) => ChangeContainer(box, e)" value="@box.SelectedContainerId">
+                <option value="">Välj Container</option>
+                @foreach (var container in containers)
+                {
+                    <option value="@container.Id">@container.Title</option>
+                }
+            </select>
+
+            // Flytta upp och ner knappar
+            <button @onclick="() => MoveInnerUp(box, (BoxContainer)FindParentContainer(box))">⬆️</button>
+            <button @onclick="() => MoveInnerDown(box, (BoxContainer)FindParentContainer(box))">⬇️</button>
+            <button @onclick="() => RemoveInnerBox(box, (BoxContainer)FindParentContainer(box))">Ta bort box</button>
+        }
+
+        <button @onclick="() => MoveUp(box)">⬆️</button>
+        <button @onclick="() => MoveDown(box)">⬇️</button>
+        <button @onclick="() => RemoveBox(box)">Ta bort box</button>
+    </li>;
+
+    private void AddInnerTextBox(BoxContainer container)
+    {
+        container.InnerBoxes.Add(new TextBox { Id = nextId++, Text = $"Inner Text Box {nextId}" });
+    }
+
+    private void AddInnerImageBox(BoxContainer container)
+    {
+        container.InnerBoxes.Add(new ImageBox { Id = nextId++, ImageUrl = "https://via.placeholder.com/100" });
+    }
+
+    private void MoveUp(BoxBase box)
+    {
+        int index = boxes.IndexOf(box);
+        if (index > 0) 
+        {
+            boxes.RemoveAt(index);
+            boxes.Insert(index - 1, box);
+        }
+    }
+
+    private void MoveDown(BoxBase box)
+    {
+        int index = boxes.IndexOf(box);
+        if (index >= 0 && index < boxes.Count - 1) 
+        {
+            boxes.RemoveAt(index);
+            boxes.Insert(index + 1, box);
+        }
+    }
+
+    // Metod för att flytta upp en inner box
+    private void MoveInnerUp(BoxBase box, BoxContainer container)
+    {
+        int index = container.InnerBoxes.IndexOf(box);
+        if (index > 0)
+        {
+            container.InnerBoxes.RemoveAt(index);
+            container.InnerBoxes.Insert(index - 1, box);
+        }
+    }
+
+    // Metod för att flytta ner en inner box
+    private void MoveInnerDown(BoxBase box, BoxContainer container)
+    {
+        int index = container.InnerBoxes.IndexOf(box);
+        if (index >= 0 && index < container.InnerBoxes.Count - 1)
+        {
+            container.InnerBoxes.RemoveAt(index);
+            container.InnerBoxes.Insert(index + 1, box);
+        }
+    }
+
+    // Metod för att ta bort en inner box
+    private void RemoveInnerBox(BoxBase box, BoxContainer container)
+    {
+        container.InnerBoxes.Remove(box);
+    }
+
+    // Hitta föräldracontainern för en box
+    private BoxContainer FindParentContainer(BoxBase box)
+    {
+        return containers.FirstOrDefault(c => c.InnerBoxes.Contains(box));
+    }
+
+    // Metod för att ändra container för en box
+    private void ChangeContainer(BoxBase box, ChangeEventArgs e)
+    {
+        var selectedContainerIdStr = e.Value.ToString();
+
+        // Kontrollera om det valda värdet är tomt
+        if (string.IsNullOrEmpty(selectedContainerIdStr))
+        {
+            return; // Avbryt om inget värde är valt
+        }
+
+        int selectedContainerId = int.Parse(selectedContainerIdStr);
+        var targetContainer = containers.FirstOrDefault(c => c.Id == selectedContainerId);
+
+        // Kontrollera om boxen finns i en container
+        BoxContainer currentContainer = containers.FirstOrDefault(c => c.InnerBoxes.Contains(box));
+
+        if (targetContainer != null && !(box is BoxContainer))
+        {
+            // Ta bort boxen från den nuvarande containern om den är i en
+            if (currentContainer != null)
+            {
+                currentContainer.InnerBoxes.Remove(box);
+            }
+            
+            // Ta bort boxen från den nuvarande listan (boxes)
+            boxes.Remove(box);
+            
+            // Lägg till boxen i den valda containerns innerBoxar
+            targetContainer.InnerBoxes.Add(box);
+            
+            // Spara den nya valda containern i boxens egenskap
+            box.SelectedContainerId = selectedContainerId;
+
+            // Uppdatera UI:t
+            StateHasChanged();
+        }
+    }
+
+    // Metod för att ta bort en box
+    private void RemoveBox(BoxBase box)
+    {
+        boxes.Remove(box);
+    }
+}

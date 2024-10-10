@@ -1,0 +1,15 @@
+.box-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.box {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 5px;
+  cursor: move;
+}
+
+.content-menu {
+  margin-top: 20px;
+}

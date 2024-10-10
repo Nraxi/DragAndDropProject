@@ -1,0 +1,15 @@
+﻿@page "/"
+@using DragAndDropProject.Models
+@using DragAndDropProject.Components
+
+<h1>Drag and Drop Example</h1>
+
+<BoxList OnBoxSelected="HandleBoxSelected" />
+
+@code {
+    private void HandleBoxSelected(BoxBase selectedBox)
+    {
+        // Gör något med den valda boxen, till exempel visa en meny
+        Console.WriteLine($"Selected Box: {selectedBox.GetContent()}");
+    }
+}
