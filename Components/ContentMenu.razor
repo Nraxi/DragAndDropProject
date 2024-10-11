@@ -5,7 +5,7 @@
     <input type="text" @bind="NewContent" placeholder="Ange text eller bild-URL" />
     <button @onclick="AddContent">Lägg till</button>
 
-    @if (Box is ImageBox imageBox)
+    @if (Box is ImageModel imageBox)
     {
         <h4>Ändra Bildinställningar</h4>
         <div>
@@ -22,7 +22,7 @@
         </div>
     }
 
-    @if (Box is TextBox textBox)
+    @if (Box is TextModel textBox)
     {
         <h4>Ändra Textinställningar</h4>
         <div>
@@ -35,7 +35,7 @@
 </div>
 
 @code {
-    [Parameter] public BoxBase Box { get; set; }
+    [Parameter] public ContentModel Box { get; set; }
     [Parameter] public EventCallback<string> OnContentAdded { get; set; }
 
     private string NewContent;
@@ -48,7 +48,7 @@
 
     private void ToggleBold()
     {
-        if (Box is TextBox textBox)
+        if (Box is TextModel textBox)
         {
             textBox.IsBold = !textBox.IsBold; // Växla fetstil
         }
@@ -56,7 +56,7 @@
 
     private void ToggleItalic()
     {
-        if (Box is TextBox textBox)
+        if (Box is TextModel textBox)
         {
             textBox.IsItalic = !textBox.IsItalic; // Växla kursiv stil
         }
