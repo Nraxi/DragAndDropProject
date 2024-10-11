@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DragAndDropProject")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4d618efeed672b3eccad773e7d76386cb677d2a4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5ced3ca12dc7496887e20bbb3495411055e55cd3")]
 [assembly: System.Reflection.AssemblyProductAttribute("DragAndDropProject")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DragAndDropProject")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
