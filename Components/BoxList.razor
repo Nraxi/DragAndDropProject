@@ -155,8 +155,7 @@ private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentC
     @if (box is SectionModel container)
     {
          <ul style="background-color:@container.BackgroundColor; 
-                    min-height:@(container.Height.HasValue ? $"{container.Height}px" : "auto"); 
-                    height:@(container.Height.HasValue && container.Height > 0 ? $"{container.Height}px" : "auto"); 
+                    height:@($"{container.Height}px");
                     border:@($"{container.BorderPix}px solid {container.BackgroundBorder}");">
 
 
@@ -182,7 +181,7 @@ private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentC
                 <button @onclick="() => MoveContainerDown(container)">Flytta Container Ner</button>
                 <div>
                     <label>Välj Storlek:</label>
-                    <input type="number" @bind="@container.Height" @oninput="@(e => UpdateHeight(e, container))" />
+                    <input type="number" @bind="@container.Height" />
                     <label>Välj Bakgrundsfärg:</label>
                     <input type="color" @bind="@container.BackgroundColor" />
                      <label>Välj Border Färg:</label>
@@ -196,22 +195,7 @@ private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentC
 </li>;
 
 
-   private void UpdateHeight(ChangeEventArgs e, SectionModel container)
-{
-    if (int.TryParse(e.Value?.ToString(), out int height))
-    {
-        // Set the height if it's greater than or equal to 0
-        container.Height = height >= 0 ? height : (int?)null; // Set to null for auto if below 0
-    }
-    else
-    {
-        container.Height = null; // Set to auto if no value is provided
-    }
-}
-
-
-
-
+   
 
     private void ChangeTextAlign(ContentModel box, ChangeEventArgs e)
     {

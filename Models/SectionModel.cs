@@ -8,8 +8,8 @@ namespace DragAndDropProject.Models
         public string? Title { get; set; }
         public List<ContentModel> InnerBoxes { get; set; } = new List<ContentModel>(); // Lista över boxar i containern
         private int? selectedInnerBoxId;
-        public string BackgroundColor { get; set; } = "white";
-        public string BackgroundBorder { get; set; } = "white";
+        public string BackgroundColor { get; set; } = "#FFFFFF";
+        public string BackgroundBorder { get; set; } = "#FFFFFF";
         public int BorderPix { get; set; } = 0;
         public int? Height { get; set; } 
        
