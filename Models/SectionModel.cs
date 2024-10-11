@@ -8,6 +8,14 @@ namespace DragAndDropProject.Models
         public string? Title { get; set; }
         public List<ContentModel> InnerBoxes { get; set; } = new List<ContentModel>(); // Lista över boxar i containern
         private int? selectedInnerBoxId;
+        public string BackgroundColor { get; set; } = "white";
+        public string BackgroundBorder { get; set; } = "white";
+        public int BorderPix { get; set; } = 0;
+        public int? Height { get; set; } 
+       
+        
+        
+
         
         public int? SelectedInnerBoxId
         {
@@ -29,10 +37,6 @@ namespace DragAndDropProject.Models
             return (MarkupString)Title; // Returnera titeln för containern som MarkupString
         }
         
-        // Optionally implement a method to move boxes
-        private void MoveBox(int innerBoxId)
-        {
-            // Logic to move the box identified by innerBoxId
-        }
+       
     }
 }
