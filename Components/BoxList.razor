@@ -10,6 +10,7 @@
     <button @onclick="AddTextModel">Lägg till Text Box</button>
     <button @onclick="AddImageModel">Lägg till Image Box</button>
     <button @onclick="AddContainer">Lägg till Container</button>
+    <button @onclick="ClearAll">Rensa Alla Boxar</button>
 }
 
 <ul class="box-list">
@@ -36,9 +37,16 @@
         boxes.Add(new TextModel { Id = nextId++, Text = "Text Box 2" });
         boxes.Add(new ImageModel { Id = nextId++, ImageUrl = "https://via.placeholder.com/100" });
 
-        <!-- // Startar containrar med unika ID:n
+        // Startar containrar med unika ID:n
         containers.Add(new SectionModel { Id = nextId++, Title = "Container 1", InnerBoxes = new List<ContentModel>() });
-        containers.Add(new SectionModel { Id = nextId++, Title = "Container 2", InnerBoxes = new List<ContentModel>() }); -->
+        containers.Add(new SectionModel { Id = nextId++, Title = "Container 2", InnerBoxes = new List<ContentModel>() });
+    }
+
+     private void ClearAll()
+    {
+        boxes.Clear(); // Rensa alla boxar
+        containers.Clear(); // Rensa alla containrar
+        nextId = 1; // Återställ ID-tellern om du vill börja om från början
     }
 
     private void ToggleButtonsVisibility()
@@ -64,7 +72,7 @@
     }
 
     private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentContainer) => @<li>
-        <div @onclick="() => ToggleEdit(box)">
+        <div @onclick="() => HandleImageClick(box)">
             @if (box is TextModel textModel)
             {
                 <span>@textModel.Text</span>
@@ -133,6 +141,16 @@
             }
         }
     </li>;
+
+    private void HandleImageClick(ContentModel box)
+    {
+        // Kontrollera om boxen redan är i redigeringsläge
+        if (box.IsEditing)
+        {
+            return; // Gör ingenting om den redan är i redigeringsläge
+        }
+        ToggleEdit(box); // Annars aktivera redigering
+    }
 
     private void ToggleEdit(ContentModel box)
     {
@@ -246,10 +264,10 @@
 
     private void ClearContainer(SectionModel container)
     {
-        container.InnerBoxes.Clear(); // Tar bort alla inner boxes i containern
+        container.InnerBoxes.Clear(); // Rensa alla inre boxar
     }
 
-    private void ChangeContainer(ContentModel box, ChangeEventArgs e)
+     private void ChangeContainer(ContentModel box, ChangeEventArgs e)
     {
         var selectedContainerIdStr = e.Value?.ToString();
         if (string.IsNullOrEmpty(selectedContainerIdStr))
