@@ -71,7 +71,7 @@
         containers.Add(newContainer);
     }
 
-   private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentContainer) => @<li>
+private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentContainer) => @<li>
     <div @onclick="() => HandleImageClick(box)" style="text-align:@box.TextAlign;"> <!-- Apply text alignment -->
         @if (box is TextModel textModel)
         {
@@ -93,10 +93,16 @@
         // Display only when not in edit mode
         @if (box.ShowEditButton)
         {
-            <button @onclick="() => ToggleEdit(box)">Ändra</button>;
+            <button @onclick="() => ToggleEdit(box)">Spara</button>;
             <div>
                 @if (parentContainer == null) // Only for top level
                 {
+                    <select @onchange="(e) => ChangeTextAlign(box, e)" value="@box.TextAlign"> <!-- Dropdown for text alignment -->
+                        <option value="left">Vänster</option>
+                        <option value="center">Center</option>
+                        <option value="right">Höger</option>
+                    </select>
+
                     <button @onclick="() => MoveBoxUp(box)">Flytta upp</button>
                     <button @onclick="() => MoveBoxDown(box)">Flytta ner</button>
                     <button @onclick="() => RemoveBox(box)">Ta bort box</button>
@@ -150,6 +156,7 @@
         }
     }
 </li>;
+
 
 
     private void ChangeTextAlign(ContentModel box, ChangeEventArgs e)
