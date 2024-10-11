@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-public class ImageBox : BoxBase
+public class ImageModel : ContentModel
 {
     public string ImageUrl { get; set; }
     public int Height { get; set; } = 100; // Default height

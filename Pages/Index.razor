@@ -7,7 +7,7 @@
 <BoxList OnBoxSelected="HandleBoxSelected" />
 
 @code {
-    private void HandleBoxSelected(BoxBase selectedBox)
+    private void HandleBoxSelected(ContentModel selectedBox)
     {
         // Gör något med den valda boxen, till exempel visa en meny
         Console.WriteLine($"Selected Box: {selectedBox.GetContent()}");

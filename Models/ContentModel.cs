@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-public abstract class BoxBase
+public abstract class ContentModel
 {
     public int Id { get; set; }
     public int? SelectedContainerId { get; set; }

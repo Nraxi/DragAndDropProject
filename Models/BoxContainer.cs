@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace DragAndDropProject.Models
 {
-    public class BoxContainer : BoxBase
+    public class SectionModel : ContentModel
 {
     public string Title { get; set; }
-    public List<BoxBase> InnerBoxes { get; set; } = new List<BoxBase>(); // Lista över boxar i containern
+    public List<ContentModel> InnerBoxes { get; set; } = new List<ContentModel>(); // Lista över boxar i containern
 
     public override MarkupString GetContent()
     {

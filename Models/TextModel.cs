@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-public class TextBox : BoxBase
+public class TextModel : ContentModel
 {
     public string Text { get; set; }
     public bool IsBold { get; set; }
