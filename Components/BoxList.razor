@@ -15,7 +15,7 @@
 <ul class="box-list">
     @foreach (var box in boxes)
     {
-        @RenderContentItem(box)
+        @RenderContentItem(box, null) // Första nivån har ingen parent, därav 'null'
     }
 </ul>
 
@@ -63,22 +63,28 @@
         containers.Add(newContainer); // Lägg till den nya containern i containrar-listan
     }
 
-    private RenderFragment RenderContentItem(BoxBase box) => @<li>
-        <h3>@box.GetType().Name - @((box is BoxContainer c) ? c.Title : string.Empty)</h3>
+    private RenderFragment RenderContentItem(BoxBase box, BoxContainer? parentContainer) => @<li>
+        <h3>@box.GetType().Name - @((box is BoxContainer containerBox) ? containerBox.Title : string.Empty)</h3>
         <div>@((MarkupString)box.GetContent())</div> <!-- Rendera innehållet som MarkupString -->
 
-        @if (box is BoxContainer parentContainer)
+        @if (box is BoxContainer innerContainer) // Ändrat namnet för att undvika kollision
         {
             <ul>
-                @foreach (var innerBox in parentContainer.InnerBoxes)
+                @foreach (var innerBox in innerContainer.InnerBoxes)
                 {
-                    @RenderContentItem(innerBox)
+                    @RenderContentItem(innerBox, innerContainer)
                 }
             </ul>
-            <button @onclick="() => AddInnerTextBox(parentContainer)">Lägg till Text Box i Container</button>
-            <button @onclick="() => AddInnerImageBox(parentContainer)">Lägg till Image Box i Container</button>
+            <button @onclick="() => AddInnerTextBox(innerContainer)">Lägg till Text Box i Container</button>
+            <button @onclick="() => AddInnerImageBox(innerContainer)">Lägg till Image Box i Container</button>
         }
-        else if (box is TextBox || box is ImageBox) // Endast boxar som inte är containrar
+        else if (parentContainer != null) // Om boxen är en innerbox i en container
+        {
+            <button @onclick="() => MoveInnerUp(box, parentContainer)">⬆️</button>
+            <button @onclick="() => MoveInnerDown(box, parentContainer)">⬇️</button>
+            <button @onclick="() => RemoveInnerBox(box, parentContainer)">Ta bort box</button>
+        }
+        else // Om det är en vanlig box (inte i en container)
         {
             <select @onchange="(e) => ChangeContainer(box, e)" value="@box.SelectedContainerId">
                 <option value="">Välj Container</option>
@@ -88,15 +94,10 @@
                 }
             </select>
 
-            // Flytta upp och ner knappar
-            <button @onclick="() => MoveInnerUp(box, (BoxContainer)FindParentContainer(box))">⬆️</button>
-            <button @onclick="() => MoveInnerDown(box, (BoxContainer)FindParentContainer(box))">⬇️</button>
-            <button @onclick="() => RemoveInnerBox(box, (BoxContainer)FindParentContainer(box))">Ta bort box</button>
+            <button @onclick="() => MoveUp(box)">⬆️</button>
+            <button @onclick="() => MoveDown(box)">⬇️</button>
+            <button @onclick="() => RemoveBox(box)">Ta bort box</button>
         }
-
-        <button @onclick="() => MoveUp(box)">⬆️</button>
-        <button @onclick="() => MoveDown(box)">⬇️</button>
-        <button @onclick="() => RemoveBox(box)">Ta bort box</button>
     </li>;
 
     private void AddInnerTextBox(BoxContainer container)
@@ -155,12 +156,6 @@
     private void RemoveInnerBox(BoxBase box, BoxContainer container)
     {
         container.InnerBoxes.Remove(box);
-    }
-
-    // Hitta föräldracontainern för en box
-    private BoxContainer FindParentContainer(BoxBase box)
-    {
-        return containers.FirstOrDefault(c => c.InnerBoxes.Contains(box));
     }
 
     // Metod för att ändra container för en box

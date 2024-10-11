@@ -30,3 +30,4 @@
 /Volumes/Disk 2 Projects/testproj/DragAndDropProject/obj/Debug/net7.0/DragAndDropProject.pdb
 /Volumes/Disk 2 Projects/testproj/DragAndDropProject/obj/Debug/net7.0/DragAndDropProject.genruntimeconfig.cache
 /Volumes/Disk 2 Projects/testproj/DragAndDropProject/obj/Debug/net7.0/ref/DragAndDropProject.dll
+/Volumes/Disk 2 Projects/testproj/DragAndDropProject/obj/Debug/net7.0/DragAndDropProject.sourcelink.json
