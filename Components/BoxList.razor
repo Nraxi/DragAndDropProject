@@ -80,8 +80,16 @@ private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentC
         else if (box is ImageModel image)
         {
             <img src="@image.ImageUrl" 
-                 style="border-radius:@($"{image.BorderRadius}px"); height:@($"{image.Height}px"); width:@($"{image.Width}px"); cursor: pointer;" 
-                 alt="Image" />
+            style="border-radius:@($"{image.BorderRadius}px"); 
+            height:@($"{image.Height}px"); 
+            width:@($"{image.Width}px"); 
+            cursor: pointer; 
+            background-color:@image.BackgroundColor; 
+            padding:@($"{image.Padding}px"); 
+            border:@($"{image.BorderPix}px solid {image.BackgroundBorder}");" 
+            alt="Image" />
+
+                 
         }
     </div>
 
@@ -113,7 +121,20 @@ private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentC
 
                 <label>Border Radius:</label>
                 <input type="number" @bind="@image.BorderRadius" />
+
+                <label>BackgroundColor:</label>
+                <input type="color" @bind="@image.BackgroundColor" />
+
+                <label>BackgroundBorder:</label>
+                <input type="color" @bind="@image.BackgroundBorder" />
+
+                <label>Border Px:</label>
+                <input type="number" @bind="@image.BorderPix" />
+
+                <label>Background Padding:</label>
+                <input type="number" @bind="@image.Padding" />
             </div>
+            
         }
 
                 @if (parentContainer == null) // Only for top level
