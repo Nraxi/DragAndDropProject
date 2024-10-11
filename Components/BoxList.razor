@@ -72,19 +72,23 @@
     }
 
 private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentContainer) => @<li>
-    <div @onclick="() => HandleImageClick(box)" style="text-align:@box.TextAlign;"> <!-- Apply text alignment -->
+    <div @onclick="() => HandleImageClick(box)" style="text-align:@box.TextAlign;">
         @if (box is TextModel textModel)
         {
             <span>@textModel.Text</span>
         }
-        else if (box is ImageModel imageModel)
+        else if (box is ImageModel image)
         {
-            <img src="@imageModel.ImageUrl" alt="Image" style="width:100px;height:100px;" />
+            <img src="@image.ImageUrl" 
+                 style="border-radius:@($"{image.BorderRadius}px"); height:@($"{image.Height}px"); width:@($"{image.Width}px"); cursor: pointer;" 
+                 alt="Image" />
         }
     </div>
 
     @if (box.IsEditing)
     {
+        
+
         <button @onclick="() => Changes(box)">Ändra</button>
         <button @onclick="() => Save(box)">Spara</button>
     }
@@ -95,9 +99,26 @@ private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentC
         {
             <button @onclick="() => ToggleEdit(box)">Spara</button>;
             <div>
+                @if (box is ImageModel image)
+        {
+            <div>
+                <label>Image URL:</label>
+                <input type="text" @bind="@image.ImageUrl" />
+
+                <label>Height:</label>
+                <input type="number" @bind="@image.Height" />
+
+                <label>Width:</label>
+                <input type="number" @bind="@image.Width" />
+
+                <label>Border Radius:</label>
+                <input type="number" @bind="@image.BorderRadius" />
+            </div>
+        }
+
                 @if (parentContainer == null) // Only for top level
                 {
-                    <select @onchange="(e) => ChangeTextAlign(box, e)" value="@box.TextAlign"> <!-- Dropdown for text alignment -->
+                    <select @onchange="(e) => ChangeTextAlign(box, e)" value="@box.TextAlign">
                         <option value="left">Vänster</option>
                         <option value="center">Center</option>
                         <option value="right">Höger</option>
@@ -113,19 +134,17 @@ private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentC
                     <button @onclick="() => MoveInnerDown(box, parentContainer)">Flytta ner</button>
                     <button @onclick="() => RemoveInnerBox(box, parentContainer)">Ta bort box</button>
                     
-                    <!-- Dropdown for text alignment -->
                     <select @onchange="(e) => ChangeTextAlign(box, e)" value="@box.TextAlign"> 
                         <option value="left">Vänster</option>
                         <option value="center">Center</option>
                         <option value="right">Höger</option>
                     </select>
                     
-                    <!-- Dropdown for selecting container -->
                     <select @onchange="(e) => ChangeContainer(box, e)" value="@box.SelectedContainerId">
                         <option value="">Välj Container</option>
                         @foreach (var c in containers)
                         {
-                            <option value="@c.Id">@c.Title</option> <!-- Only the title is displayed -->
+                            <option value="@c.Id">@c.Title</option>
                         }
                     </select>
                 }
@@ -138,17 +157,17 @@ private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentC
         <ul>
             @foreach (var innerBox in container.InnerBoxes)
             {
-                @RenderContentItem(innerBox, container) // Pass container for inner boxes
+                @RenderContentItem(innerBox, container)
             }
         </ul>
 
-        @if (showButtons) // Check if the main buttons are visible
+        @if (showButtons)
         {
             <button @onclick="() => AddInnerTextModel(container)">Lägg till Text Box i Container</button>
             <button @onclick="() => AddInnerImageModel(container)">Lägg till Image Box i Container</button>
-            <button @onclick="() => RemoveContainer(container)">Ta bort Container</button> <!-- New button to remove the container -->
-            <button @onclick="() => ClearContainer(container)">Rensa Innehåll</button> <!-- New button to clear the container's content -->
-            <p>Container ID: @container.Id</p> <!-- Show container ID -->
+            <button @onclick="() => RemoveContainer(container)">Ta bort Container</button>
+            <button @onclick="() => ClearContainer(container)">Rensa Innehåll</button>
+            <p>Container ID: @container.Id</p>
             <div>
                 <button @onclick="() => MoveContainerUp(container)">Flytta Container Upp</button>
                 <button @onclick="() => MoveContainerDown(container)">Flytta Container Ner</button>
@@ -156,6 +175,7 @@ private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentC
         }
     }
 </li>;
+
 
 
 

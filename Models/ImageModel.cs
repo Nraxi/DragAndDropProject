@@ -10,6 +10,6 @@ public class ImageModel : ContentModel
     public override MarkupString GetContent()
     {
         // Return as MarkupString
-        return (MarkupString)$"<img src='{ImageUrl}' height='{Height}' width='{Width}' style='border-radius: {BorderRadius}px;' />";
+        return (MarkupString)$"<img src='{ImageUrl}' height='{Height}px' width='{Width}px' style='border-radius: {BorderRadius}px;' />";
     }
 }
