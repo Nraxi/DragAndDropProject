@@ -71,76 +71,92 @@
         containers.Add(newContainer);
     }
 
-    private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentContainer) => @<li>
-        <div @onclick="() => HandleImageClick(box)">
-            @if (box is TextModel textModel)
-            {
-                <span>@textModel.Text</span>
-            }
-            else if (box is ImageModel imageModel)
-            {
-                <img src="@imageModel.ImageUrl" alt="Image" style="width:100px;height:100px;" />
-            }
-        </div>
-
-        @if (box.IsEditing)
+   private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentContainer) => @<li>
+    <div @onclick="() => HandleImageClick(box)" style="text-align:@box.TextAlign;"> <!-- Apply text alignment -->
+        @if (box is TextModel textModel)
         {
-            <button @onclick="() => Changes(box)">Ändra</button>
-            <button @onclick="() => Save(box)">Spara</button>
+            <span>@textModel.Text</span>
         }
-        else
+        else if (box is ImageModel imageModel)
         {
-            // Visa bara innehållet när den inte är i redigeringsläge
-            @if (box.ShowEditButton)
-            {
-                <button @onclick="() => ToggleEdit(box)">Ändra</button>;
-                <div>
-                    @if (parentContainer == null) // Endast för översta nivån
-                    {
-                        <button @onclick="() => MoveBoxUp(box)">Flytta upp</button>
-                        <button @onclick="() => MoveBoxDown(box)">Flytta ner</button>
-                        <button @onclick="() => RemoveBox(box)">Ta bort box</button>
-                    }
-                    else // Inre boxar
-                    {
-                        <button @onclick="() => MoveInnerUp(box, parentContainer)">Flytta upp</button>
-                        <button @onclick="() => MoveInnerDown(box, parentContainer)">Flytta ner</button>
-                        <button @onclick="() => RemoveInnerBox(box, parentContainer)">Ta bort box</button>
-                        <select @onchange="(e) => ChangeContainer(box, e)" value="@box.SelectedContainerId">
-                            <option value="">Välj Container</option>
-                            @foreach (var c in containers)
-                            {
-                                <option value="@c.Id">@c.Title</option> <!-- Endast titeln visas -->
-                            }
-                        </select>
-                    }
-                </div>
-            }
+            <img src="@imageModel.ImageUrl" alt="Image" style="width:100px;height:100px;" />
         }
+    </div>
 
-        @if (box is SectionModel container)
+    @if (box.IsEditing)
+    {
+        <button @onclick="() => Changes(box)">Ändra</button>
+        <button @onclick="() => Save(box)">Spara</button>
+    }
+    else
+    {
+        // Display only when not in edit mode
+        @if (box.ShowEditButton)
         {
-            <ul>
-                @foreach (var innerBox in container.InnerBoxes)
+            <button @onclick="() => ToggleEdit(box)">Ändra</button>;
+            <div>
+                @if (parentContainer == null) // Only for top level
                 {
-                    @RenderContentItem(innerBox, container) // Pass container för inner boxes
+                    <button @onclick="() => MoveBoxUp(box)">Flytta upp</button>
+                    <button @onclick="() => MoveBoxDown(box)">Flytta ner</button>
+                    <button @onclick="() => RemoveBox(box)">Ta bort box</button>
                 }
-            </ul>
-
-            @if (showButtons) // Check if the main buttons are visible
-            {
-                <button @onclick="() => AddInnerTextModel(container)">Lägg till Text Box i Container</button>
-                <button @onclick="() => AddInnerImageModel(container)">Lägg till Image Box i Container</button>
-                <button @onclick="() => RemoveContainer(container)">Ta bort Container</button> <!-- New button to remove the container -->
-                <button @onclick="() => ClearContainer(container)">Rensa Innehåll</button> <!-- New button to clear the container's content -->
-                <p>Container ID: @container.Id</p> <!-- Show container ID -->
-                <div>
-                    <button @onclick="() => MoveContainerUp(container)">Flytta Container Upp</button>
-                    <button @onclick="() => MoveContainerDown(container)">Flytta Container Ner</button>
-                </div>
-            }
+                else // Inner boxes
+                {
+                    <button @onclick="() => MoveInnerUp(box, parentContainer)">Flytta upp</button>
+                    <button @onclick="() => MoveInnerDown(box, parentContainer)">Flytta ner</button>
+                    <button @onclick="() => RemoveInnerBox(box, parentContainer)">Ta bort box</button>
+                    
+                    <!-- Dropdown for text alignment -->
+                    <select @onchange="(e) => ChangeTextAlign(box, e)" value="@box.TextAlign"> 
+                        <option value="left">Vänster</option>
+                        <option value="center">Center</option>
+                        <option value="right">Höger</option>
+                    </select>
+                    
+                    <!-- Dropdown for selecting container -->
+                    <select @onchange="(e) => ChangeContainer(box, e)" value="@box.SelectedContainerId">
+                        <option value="">Välj Container</option>
+                        @foreach (var c in containers)
+                        {
+                            <option value="@c.Id">@c.Title</option> <!-- Only the title is displayed -->
+                        }
+                    </select>
+                }
+            </div>
         }
-    </li>;
+    }
+
+    @if (box is SectionModel container)
+    {
+        <ul>
+            @foreach (var innerBox in container.InnerBoxes)
+            {
+                @RenderContentItem(innerBox, container) // Pass container for inner boxes
+            }
+        </ul>
+
+        @if (showButtons) // Check if the main buttons are visible
+        {
+            <button @onclick="() => AddInnerTextModel(container)">Lägg till Text Box i Container</button>
+            <button @onclick="() => AddInnerImageModel(container)">Lägg till Image Box i Container</button>
+            <button @onclick="() => RemoveContainer(container)">Ta bort Container</button> <!-- New button to remove the container -->
+            <button @onclick="() => ClearContainer(container)">Rensa Innehåll</button> <!-- New button to clear the container's content -->
+            <p>Container ID: @container.Id</p> <!-- Show container ID -->
+            <div>
+                <button @onclick="() => MoveContainerUp(container)">Flytta Container Upp</button>
+                <button @onclick="() => MoveContainerDown(container)">Flytta Container Ner</button>
+            </div>
+        }
+    }
+</li>;
+
+
+    private void ChangeTextAlign(ContentModel box, ChangeEventArgs e)
+    {
+        box.TextAlign = e.Value.ToString(); // Update text alignment based on the selected value
+    }
+
 
     private void HandleImageClick(ContentModel box)
     {

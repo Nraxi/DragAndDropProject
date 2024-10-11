@@ -7,4 +7,5 @@ public abstract class ContentModel
     public bool IsEditing { get; set; } = false; 
     public bool ShowEditButton { get; set; }
     public abstract MarkupString GetContent();
+    public string TextAlign { get; set; } = "left"; // Default alignment
 }
