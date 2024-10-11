@@ -2,7 +2,7 @@
 
 namespace DragAndDropProject.Components
 {
-    public partial class BoxListBakup : ComponentBase
+    public partial class BoxListBakup2 : ComponentBase
     {
     }
 }
