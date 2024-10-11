@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 
 public class TextModel : ContentModel
 {
-    public string Text { get; set; }
+    public string? Text { get; set; } 
     public bool IsBold { get; set; }
     public bool IsItalic { get; set; }
 

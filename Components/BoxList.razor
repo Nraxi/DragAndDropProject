@@ -24,26 +24,26 @@
     public EventCallback<ContentModel> OnBoxSelected { get; set; }
 
     private List<ContentModel> boxes = new List<ContentModel>();
-    private List<SectionModel> containers = new List<SectionModel>(); // Lista för containrar
-    private int nextId = 5; // För att ge unika Id till nya boxar
-    private bool showButtons = true; // För att styra visningen av knapparna
+    private List<SectionModel> containers = new List<SectionModel>();
+    private int nextId = 1; // Startar från 1 för enklare nummer
+    private bool showButtons = true;
 
     protected override void OnInitialized()
     {
-        // Lägg till några boxar som standard
-        boxes.Add(new TextModel { Id = 1, Text = "Text Box 1" });
-        boxes.Add(new ImageModel { Id = 2, ImageUrl = "https://via.placeholder.com/100" });
-        boxes.Add(new TextModel { Id = 3, Text = "Text Box 2" });
-        boxes.Add(new ImageModel { Id = 4, ImageUrl = "https://via.placeholder.com/100" });
+        // Lägg till några förvalda boxar och containrar
+        boxes.Add(new TextModel { Id = nextId++, Text = "Text Box 1" });
+        boxes.Add(new ImageModel { Id = nextId++, ImageUrl = "https://via.placeholder.com/100" });
+        boxes.Add(new TextModel { Id = nextId++, Text = "Text Box 2" });
+        boxes.Add(new ImageModel { Id = nextId++, ImageUrl = "https://via.placeholder.com/100" });
 
-        // Lägg till exempelcontainrar
-        containers.Add(new SectionModel { Id = 6, Title = "Container 1", InnerBoxes = new List<ContentModel>() });
-        containers.Add(new SectionModel { Id = 7, Title = "Container 2", InnerBoxes = new List<ContentModel>() });
+        <!-- // Startar containrar med unika ID:n
+        containers.Add(new SectionModel { Id = nextId++, Title = "Container 1", InnerBoxes = new List<ContentModel>() });
+        containers.Add(new SectionModel { Id = nextId++, Title = "Container 2", InnerBoxes = new List<ContentModel>() }); -->
     }
 
     private void ToggleButtonsVisibility()
     {
-        showButtons = !showButtons; // Toggla visningsstatusen
+        showButtons = !showButtons;
     }
 
     private void AddTextModel()
@@ -58,53 +58,105 @@
 
     private void AddContainer()
     {
-        var newContainer = new SectionModel { Id = nextId++, Title = $"Container {nextId}", InnerBoxes = new List<ContentModel>() };
+        var newContainer = new SectionModel { Id = nextId++, Title = $"Container {nextId - 1}", InnerBoxes = new List<ContentModel>() };
         boxes.Add(newContainer);
-        containers.Add(newContainer); // Lägg till den nya containern i containrar-listan
+        containers.Add(newContainer);
     }
 
     private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentContainer) => @<li>
-        <h3>@box.GetType().Name - @((box is SectionModel containerBox) ? containerBox.Title : string.Empty)</h3>
-        <div>@((MarkupString)box.GetContent())</div> <!-- Rendera innehållet som MarkupString -->
+        <div @onclick="() => ToggleEdit(box)">
+            @if (box is TextModel textModel)
+            {
+                <span>@textModel.Text</span>
+            }
+            else if (box is ImageModel imageModel)
+            {
+                <img src="@imageModel.ImageUrl" alt="Image" style="width:100px;height:100px;" />
+            }
+        </div>
 
-        @if (box is SectionModel innerContainer) // Ändrat namnet för att undvika kollision
+        @if (box.IsEditing)
+        {
+            <button @onclick="() => Changes(box)">Ändra</button>
+            <button @onclick="() => Save(box)">Spara</button>
+        }
+        else
+        {
+            // Visa bara innehållet när den inte är i redigeringsläge
+            @if (box.ShowEditButton)
+            {
+                <button @onclick="() => ToggleEdit(box)">Ändra</button>;
+                <div>
+                    @if (parentContainer == null) // Endast för översta nivån
+                    {
+                        <button @onclick="() => MoveBoxUp(box)">Flytta upp</button>
+                        <button @onclick="() => MoveBoxDown(box)">Flytta ner</button>
+                        <button @onclick="() => RemoveBox(box)">Ta bort box</button>
+                    }
+                    else // Inre boxar
+                    {
+                        <button @onclick="() => MoveInnerUp(box, parentContainer)">Flytta upp</button>
+                        <button @onclick="() => MoveInnerDown(box, parentContainer)">Flytta ner</button>
+                        <button @onclick="() => RemoveInnerBox(box, parentContainer)">Ta bort box</button>
+                        <select @onchange="(e) => ChangeContainer(box, e)" value="@box.SelectedContainerId">
+                            <option value="">Välj Container</option>
+                            @foreach (var c in containers)
+                            {
+                                <option value="@c.Id">@c.Title</option> <!-- Endast titeln visas -->
+                            }
+                        </select>
+                    }
+                </div>
+            }
+        }
+
+        @if (box is SectionModel container)
         {
             <ul>
-                @foreach (var innerBox in innerContainer.InnerBoxes)
+                @foreach (var innerBox in container.InnerBoxes)
                 {
-                    @RenderContentItem(innerBox, innerContainer)
+                    @RenderContentItem(innerBox, container) // Pass container för inner boxes
                 }
             </ul>
-            <button @onclick="() => AddInnerTextModel(innerContainer)">Lägg till Text Box i Container</button>
-            <button @onclick="() => AddInnerImageModel(innerContainer)">Lägg till Image Box i Container</button>
-        }
-        else if (parentContainer != null) // Om boxen är en innerbox i en container
-        {   <select @onchange="(e) => ChangeContainer(box, e)" value="@box.SelectedContainerId">
-                <option value="">Välj Container</option>
-                @foreach (var container in containers)
-                {
-                    <option value="@container.Id">@container.Title</option>
-                }
-            </select>
-            <button @onclick="() => MoveInnerUp(box, parentContainer)">⬆️</button>
-            <button @onclick="() => MoveInnerDown(box, parentContainer)">⬇️</button>
-            <button @onclick="() => RemoveInnerBox(box, parentContainer)">Ta bort box</button>
-        }
-        else // Om det är en vanlig box (inte i en container)
-        {
-            <select @onchange="(e) => ChangeContainer(box, e)" value="@box.SelectedContainerId">
-                <option value="">Välj Container</option>
-                @foreach (var container in containers)
-                {
-                    <option value="@container.Id">@container.Title</option>
-                }
-            </select>
 
-            <button @onclick="() => MoveUp(box)">⬆️</button>
-            <button @onclick="() => MoveDown(box)">⬇️</button>
-            <button @onclick="() => RemoveBox(box)">Ta bort box</button>
+            @if (showButtons) // Check if the main buttons are visible
+            {
+                <button @onclick="() => AddInnerTextModel(container)">Lägg till Text Box i Container</button>
+                <button @onclick="() => AddInnerImageModel(container)">Lägg till Image Box i Container</button>
+                <button @onclick="() => RemoveContainer(container)">Ta bort Container</button> <!-- New button to remove the container -->
+                <button @onclick="() => ClearContainer(container)">Rensa Innehåll</button> <!-- New button to clear the container's content -->
+                <p>Container ID: @container.Id</p> <!-- Show container ID -->
+                <div>
+                    <button @onclick="() => MoveContainerUp(container)">Flytta Container Upp</button>
+                    <button @onclick="() => MoveContainerDown(container)">Flytta Container Ner</button>
+                </div>
+            }
         }
     </li>;
+
+    private void ToggleEdit(ContentModel box)
+    {
+        box.IsEditing = !box.IsEditing; // Växlar redigeringstillståndet
+        if (box is TextModel || box is ImageModel) 
+        {
+            // Visa "Ändra"-knappen om redigering är aktiverad
+            box.ShowEditButton = !box.IsEditing;
+        }
+    }
+
+    private void Save(ContentModel box)
+    {
+        // Toggle back to original view
+        box.IsEditing = false; // Set editing to false
+        box.ShowEditButton = false; // Hide the edit button since we're toggling back
+    }
+
+    private void Changes(ContentModel box)
+    {
+        // Implement your save logic here, e.g., updating the model or saving changes
+        box.IsEditing = false; // Set editing to false after saving
+        box.ShowEditButton = true; // Show "Ändra" button again after saving
+    }
 
     private void AddInnerTextModel(SectionModel container)
     {
@@ -116,60 +168,90 @@
         container.InnerBoxes.Add(new ImageModel { Id = nextId++, ImageUrl = "https://via.placeholder.com/100" });
     }
 
-    private void MoveUp(ContentModel box)
+    private void MoveBoxUp(ContentModel box)
     {
         int index = boxes.IndexOf(box);
-        if (index > 0) 
+        if (index > 0)
         {
             boxes.RemoveAt(index);
             boxes.Insert(index - 1, box);
         }
     }
 
-    private void MoveDown(ContentModel box)
+    private void MoveBoxDown(ContentModel box)
     {
         int index = boxes.IndexOf(box);
-        if (index >= 0 && index < boxes.Count - 1) 
+        if (index >= 0 && index < boxes.Count - 1)
         {
             boxes.RemoveAt(index);
             boxes.Insert(index + 1, box);
         }
     }
 
-    // Metod för att flytta upp en inner box
-    private void MoveInnerUp(ContentModel box, SectionModel container)
+    private void MoveContainerUp(SectionModel container)
     {
-        int index = container.InnerBoxes.IndexOf(box);
+        int index = boxes.IndexOf(container);
         if (index > 0)
         {
-            container.InnerBoxes.RemoveAt(index);
-            container.InnerBoxes.Insert(index - 1, box);
+            boxes.RemoveAt(index);
+            boxes.Insert(index - 1, container);
         }
     }
 
-    // Metod för att flytta ner en inner box
-    private void MoveInnerDown(ContentModel box, SectionModel container)
+    private void MoveContainerDown(SectionModel container)
     {
-        int index = container.InnerBoxes.IndexOf(box);
-        if (index >= 0 && index < container.InnerBoxes.Count - 1)
+        int index = boxes.IndexOf(container);
+        if (index >= 0 && index < boxes.Count - 1)
         {
-            container.InnerBoxes.RemoveAt(index);
-            container.InnerBoxes.Insert(index + 1, box);
+            boxes.RemoveAt(index);
+            boxes.Insert(index + 1, container);
         }
     }
 
-    // Metod för att ta bort en inner box
-    private void RemoveInnerBox(ContentModel box, SectionModel container)
+    private void MoveInnerUp(ContentModel box, SectionModel parentContainer)
     {
-        container.InnerBoxes.Remove(box);
+        int index = parentContainer.InnerBoxes.IndexOf(box);
+        if (index > 0)
+        {
+            parentContainer.InnerBoxes.RemoveAt(index);
+            parentContainer.InnerBoxes.Insert(index - 1, box);
+        }
     }
 
-    // Metod för att ändra container för en box
+    private void MoveInnerDown(ContentModel box, SectionModel parentContainer)
+    {
+        int index = parentContainer.InnerBoxes.IndexOf(box);
+        if (index >= 0 && index < parentContainer.InnerBoxes.Count - 1)
+        {
+            parentContainer.InnerBoxes.RemoveAt(index);
+            parentContainer.InnerBoxes.Insert(index + 1, box);
+        }
+    }
+
+    private void RemoveBox(ContentModel box)
+    {
+        boxes.Remove(box);
+    }
+
+    private void RemoveInnerBox(ContentModel box, SectionModel parentContainer)
+    {
+        parentContainer.InnerBoxes.Remove(box);
+    }
+
+    private void RemoveContainer(SectionModel container)
+    {
+        boxes.Remove(container);
+        containers.Remove(container);
+    }
+
+    private void ClearContainer(SectionModel container)
+    {
+        container.InnerBoxes.Clear(); // Tar bort alla inner boxes i containern
+    }
+
     private void ChangeContainer(ContentModel box, ChangeEventArgs e)
     {
-        var selectedContainerIdStr = e.Value.ToString();
-
-        // Kontrollera om det valda värdet är tomt
+        var selectedContainerIdStr = e.Value?.ToString();
         if (string.IsNullOrEmpty(selectedContainerIdStr))
         {
             return; // Avbryt om inget värde är valt
@@ -178,34 +260,19 @@
         int selectedContainerId = int.Parse(selectedContainerIdStr);
         var targetContainer = containers.FirstOrDefault(c => c.Id == selectedContainerId);
 
-        // Kontrollera om boxen finns i en container
         SectionModel currentContainer = containers.FirstOrDefault(c => c.InnerBoxes.Contains(box));
 
         if (targetContainer != null && !(box is SectionModel))
         {
-            // Ta bort boxen från den nuvarande containern om den är i en
             if (currentContainer != null)
             {
                 currentContainer.InnerBoxes.Remove(box);
             }
-            
-            // Ta bort boxen från den nuvarande listan (boxes)
-            boxes.Remove(box);
-            
-            // Lägg till boxen i den valda containerns innerBoxar
+
             targetContainer.InnerBoxes.Add(box);
-            
-            // Spara den nya valda containern i boxens egenskap
-            box.SelectedContainerId = selectedContainerId;
+            box.SelectedContainerId = targetContainer.Id; // Uppdatera vald container ID
 
-            // Uppdatera UI:t
-            StateHasChanged();
+            StateHasChanged(); // Uppdatera UI
         }
-    }
-
-    // Metod för att ta bort en box
-    private void RemoveBox(ContentModel box)
-    {
-        boxes.Remove(box);
     }
 }
