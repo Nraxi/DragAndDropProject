@@ -10,16 +10,15 @@
     <button @onclick="AddTextModel">Lägg till Text Box</button>
     <button @onclick="AddImageModel">Lägg till Image Box</button>
     <button @onclick="AddContainer">Lägg till Container</button>
-    <button @onclick="AddLargeContainer">Lägg till Stor Container</button>
-
+    
     <button @onclick="ClearAll">Rensa Alla Boxar</button>
 }
 
 <div class="box-grid">
     @foreach (var box in boxes)
     {
-        <div style="grid-row: @box.Row; grid-column: @(box is SectionModel ? "1 / 6" : box.Column);">
-            @RenderContentItem(box, null)
+        <div style="grid-row: @box.Row; grid-column: @box.Column;">
+            @RenderContentItem(box, null) 
         </div>
     }
 </div>
@@ -45,20 +44,6 @@
         // Startar containrar med unika ID:n
         containers.Add(new SectionModel { Id = nextId++, Title = "Container 1", InnerBoxes = new List<ContentModel>() });
         containers.Add(new SectionModel { Id = nextId++, Title = "Container 2", InnerBoxes = new List<ContentModel>() });
-    }
-
-    private void AddLargeContainer()
-    {
-        // Create a new large container with a row span of 1 and a column span from 1 to 5
-        var newContainer = new SectionModel
-        {
-            Id = nextId++,
-            Title = $"Stor Container {nextId - 1}",
-            InnerBoxes = new List<ContentModel>(),
-            Row = 1, // Set the initial row position (you can change this based on your logic)
-            Column = 1 // This will allow it to span all columns from 1 to 5
-        };
-        boxes.Add(newContainer);
     }
 
      private void ClearAll()
