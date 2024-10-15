@@ -12,6 +12,8 @@ namespace DragAndDropProject.Models
         public string BackgroundBorder { get; set; } = "#FFFFFF";
         public int BorderPix { get; set; } = 0;
         public int? Height { get; set; } 
+        
+
        
         
         

@@ -13,12 +13,15 @@
     <button @onclick="ClearAll">Rensa Alla Boxar</button>
 }
 
-<ul class="box-list">
+<div class="box-grid">
     @foreach (var box in boxes)
     {
-        @RenderContentItem(box, null) // Första nivån har ingen parent, därav 'null'
+        <div style="grid-row: @box.Row; grid-column: @box.Column;">
+            @RenderContentItem(box, null) 
+        </div>
     }
-</ul>
+</div>
+
 
 @code {
     [Parameter]
@@ -55,14 +58,75 @@
     }
 
     private void AddTextModel()
-    {
-        boxes.Add(new TextModel { Id = nextId++, Text = $"Text Box {nextId}" });
-    }
+{
+    boxes.Add(new TextModel { Id = nextId++, Text = $"Text Box {nextId}" });
+}
 
-    private void AddImageModel()
+private void AddImageModel()
+{
+    boxes.Add(new ImageModel { Id = nextId++, ImageUrl = "https://via.placeholder.com/100"});
+}
+
+<!-- private void MoveBoxUp(ContentModel box)
+{
+    if (box.Row > 1)
     {
-        boxes.Add(new ImageModel { Id = nextId++, ImageUrl = "https://via.placeholder.com/100" });
+        box.Row--;
     }
+}
+
+private void MoveBoxDown(ContentModel box)
+{
+    box.Row++;
+}
+
+private void MoveBoxLeft(ContentModel box)
+{
+    if (box.Column > 1)
+    {
+        box.Column--;
+    }
+}
+
+private void MoveBoxRight(ContentModel box)
+{
+    box.Column++;
+} -->
+private void MoveBox(ContentModel box, int rowChange, int columnChange)
+{
+    int oldRow = box.Row;
+    int oldColumn = box.Column;
+
+    // Calculate new position
+    int newRow = oldRow + rowChange;
+    int newColumn = oldColumn + columnChange;
+
+    if (IsValidPosition(newRow, newColumn))
+    {
+        box.Row = newRow;
+        box.Column = newColumn;
+        Console.WriteLine($"Moved box {box.Id} to new position: Row {newRow}, Column {newColumn}"); // Debugging
+    }
+    else
+    {
+        Console.WriteLine($"Invalid move for box {box.Id}: Row {newRow}, Column {newColumn}"); // Debugging
+    }
+}
+
+
+private bool IsValidPosition(int row, int column)
+{
+    // Set your grid boundaries, e.g., maxRows and maxColumns
+    const int maxRows = 15; // example value
+    const int maxColumns = 5; // example value
+    return row > 0 && column > 0 && row <= maxRows && column <= maxColumns;
+}
+
+
+private void MoveBoxUp(ContentModel box) => MoveBox(box, -1, 0);
+private void MoveBoxDown(ContentModel box) => MoveBox(box, 1, 0);
+private void MoveBoxLeft(ContentModel box) => MoveBox(box, 0, -1);
+private void MoveBoxRight(ContentModel box) => MoveBox(box, 0, 1);
 
     private void AddContainer()
     {
@@ -188,9 +252,11 @@ private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentC
                         <option value="right">Höger</option>
                     </select>
                     
+                    <button @onclick="() => MoveBoxUp(box)">Flytta Upp</button>
+                    <button @onclick="() => MoveBoxDown(box)">Flytta Ner</button>
+                    <button @onclick="() => MoveBoxLeft(box)">Flytta Vänster</button>
+                    <button @onclick="() => MoveBoxRight(box)">Flytta Höger</button>
 
-                    <button @onclick="() => MoveBoxUp(box)">Flytta upp</button>
-                    <button @onclick="() => MoveBoxDown(box)">Flytta ner</button>
                     <button @onclick="() => RemoveBox(box)">Ta bort box</button>
                 }
                 else // Inner boxes
@@ -221,6 +287,8 @@ private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentC
     {
          <ul style="background-color:@container.BackgroundColor; 
                     height:@($"{container.Height}px");
+                    
+                    
                     border:@($"{container.BorderPix}px solid {container.BackgroundBorder}");">
 
 
@@ -238,12 +306,16 @@ private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentC
         {
             <button @onclick="() => AddInnerTextModel(container)">Lägg till Text Box i Container</button>
             <button @onclick="() => AddInnerImageModel(container)">Lägg till Image Box i Container</button>
+
             <button @onclick="() => RemoveContainer(container)">Ta bort Container</button>
             <button @onclick="() => ClearContainer(container)">Rensa Innehåll</button>
             <p>Container ID: @container.Id</p>
             <div>
-                <button @onclick="() => MoveContainerUp(container)">Flytta Container Upp</button>
-                <button @onclick="() => MoveContainerDown(container)">Flytta Container Ner</button>
+                    <button @onclick="() => MoveBoxUp(box)">Flytta Upp</button>
+                    <button @onclick="() => MoveBoxDown(box)">Flytta Ner</button>
+                    <button @onclick="() => MoveBoxLeft(box)">Flytta Vänster</button>
+                    <button @onclick="() => MoveBoxRight(box)">Flytta Höger</button>
+                
                 <div>
                     <label>Välj Storlek:</label>
                     <input type="number" @bind="@container.Height" />
@@ -253,6 +325,7 @@ private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentC
                     <input type="color" @bind="@container.BackgroundBorder" />
                     <label>Välj Border storlek:</label>
                     <input type="number" @bind="@container.BorderPix" />
+                 
                 </div>
             </div>
         }
@@ -312,45 +385,7 @@ private RenderFragment RenderContentItem(ContentModel box, SectionModel? parentC
         container.InnerBoxes.Add(new ImageModel { Id = nextId++, ImageUrl = "https://via.placeholder.com/100" });
     }
 
-    private void MoveBoxUp(ContentModel box)
-    {
-        int index = boxes.IndexOf(box);
-        if (index > 0)
-        {
-            boxes.RemoveAt(index);
-            boxes.Insert(index - 1, box);
-        }
-    }
-
-    private void MoveBoxDown(ContentModel box)
-    {
-        int index = boxes.IndexOf(box);
-        if (index >= 0 && index < boxes.Count - 1)
-        {
-            boxes.RemoveAt(index);
-            boxes.Insert(index + 1, box);
-        }
-    }
-
-    private void MoveContainerUp(SectionModel container)
-    {
-        int index = boxes.IndexOf(container);
-        if (index > 0)
-        {
-            boxes.RemoveAt(index);
-            boxes.Insert(index - 1, container);
-        }
-    }
-
-    private void MoveContainerDown(SectionModel container)
-    {
-        int index = boxes.IndexOf(container);
-        if (index >= 0 && index < boxes.Count - 1)
-        {
-            boxes.RemoveAt(index);
-            boxes.Insert(index + 1, container);
-        }
-    }
+  
 
     private void MoveInnerUp(ContentModel box, SectionModel parentContainer)
     {

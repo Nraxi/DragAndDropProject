@@ -8,4 +8,8 @@ public abstract class ContentModel
     public bool ShowEditButton { get; set; }
     public abstract MarkupString GetContent();
     public string TextAlign { get; set; } = "left"; // Default alignment
+    
+
+    public int Row { get; set; } = 1; // Default row
+    public int Column { get; set; } = 1; // Default column
 }

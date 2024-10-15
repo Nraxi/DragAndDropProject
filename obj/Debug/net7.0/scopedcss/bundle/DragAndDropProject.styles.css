@@ -1,3 +1,24 @@
+/* _content/DragAndDropProject/Components/BoxList.razor.rz.scp.css */
+li[b-on9wvfheej]{
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+
+
+
+.box-grid[b-on9wvfheej] {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  /* Example: 5 equal columns */
+  grid-auto-rows: minmax(100px, auto);
+  /* Adjust row height */
+  gap: 0;
+  padding: 0;
+  margin: 0;
+  /* Adjust gap between boxes */
+}
 /* _content/DragAndDropProject/Pages/Index.razor.rz.scp.css */
 .box-list[b-pyat5qxqvc] {
   display: flex;
@@ -6,13 +27,23 @@
 
 .box[b-pyat5qxqvc] {
   border: 1px solid #ccc;
-  padding: 10px;
-  margin: 5px;
+  
+  /* margin: 5px; */
+  
   cursor: move;
 }
 
 .content-menu[b-pyat5qxqvc] {
-  margin-top: 20px;
+  margin-top: 0px;
+}
+
+ul[b-pyat5qxqvc] {
+  list-style-type: none;
+  /* Tar bort punkterna */
+  padding: 0;
+  /* Tar bort inre marginaler om så önskas */
+  margin: 0;
+  /* Tar bort yttre marginaler om så önskas */
 }
 /* _content/DragAndDropProject/Shared/MainLayout.razor.rz.scp.css */
 .page[b-n5i4iqi5sy] {

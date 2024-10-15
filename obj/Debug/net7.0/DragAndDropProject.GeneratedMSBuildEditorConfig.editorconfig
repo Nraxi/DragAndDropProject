@@ -22,10 +22,6 @@ build_property._RazorSourceGeneratorDebug =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Volumes/Disk 2 Projects/testproj/DragAndDropProject/Components/BoxList.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9Cb3hMaXN0LnJhem9y
-build_metadata.AdditionalFiles.CssScope = 
-
 [/Volumes/Disk 2 Projects/testproj/DragAndDropProject/Pages/Counter.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQ291bnRlci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
@@ -41,6 +37,10 @@ build_metadata.AdditionalFiles.CssScope =
 [/Volumes/Disk 2 Projects/testproj/DragAndDropProject/_Imports.razor]
 build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
+
+[/Volumes/Disk 2 Projects/testproj/DragAndDropProject/Components/BoxList.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9Cb3hMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-on9wvfheej
 
 [/Volumes/Disk 2 Projects/testproj/DragAndDropProject/Pages/Index.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSW5kZXgucmF6b3I=

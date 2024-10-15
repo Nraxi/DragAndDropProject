@@ -5,11 +5,21 @@
 
 .box[b-pyat5qxqvc] {
   border: 1px solid #ccc;
-  padding: 10px;
-  margin: 5px;
+  
+  /* margin: 5px; */
+  
   cursor: move;
 }
 
 .content-menu[b-pyat5qxqvc] {
-  margin-top: 20px;
+  margin-top: 0px;
+}
+
+ul[b-pyat5qxqvc] {
+  list-style-type: none;
+  /* Tar bort punkterna */
+  padding: 0;
+  /* Tar bort inre marginaler om så önskas */
+  margin: 0;
+  /* Tar bort yttre marginaler om så önskas */
 }
